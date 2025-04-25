@@ -2,7 +2,6 @@
 
 import { app } from "../../../scripts/app.js";
 import { api } from "../../../scripts/api.js";
-import { showError as createErrorNote } from "./utils/error.js";
 
 const CLASS_NAME = "RunJavaScript";
 const DEFAULT_MARGIN_X = 32;
@@ -673,7 +672,7 @@ const setRect = function(node, [x, y, width, height]) {
   node.onResize(node.size);
 }
 
-export default {
+app.registerExtension({
 	name: "shinich39.RunJS",
   setup() {
     // append event last of loading extensions
@@ -732,4 +731,4 @@ export default {
       node.run = () => execNode(node, []);
     }
 	},
-};
+});
