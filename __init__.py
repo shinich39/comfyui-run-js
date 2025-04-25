@@ -8,8 +8,6 @@
 
 from .nodes.node import *
 
-WEB_DIRECTORY = "./web/js"
-
 NODE_CLASS_MAPPINGS = {
   "RunJS": RunJS,
 }
