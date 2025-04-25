@@ -677,6 +677,7 @@ app.registerExtension({
   setup() {
     // append event last of loading extensions
     setTimeout(() => {
+      
       const origQueuePrompt = app.queuePrompt;
       app.queuePrompt = async function(...args) {
         execNodes("before_queued", args);
