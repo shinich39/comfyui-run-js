@@ -1,7 +1,7 @@
 "use strict";
 
-import { app } from "../../../scripts/app.js";
-import { api } from "../../../scripts/api.js";
+import { app } from "../../scripts/app.js";
+import { api } from "../../scripts/api.js";
 
 const CLASS_NAME = "RunJS";
 const DEFAULT_MARGIN_X = 32;

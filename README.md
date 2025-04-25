@@ -1,7 +1,7 @@
-## comfyui-run-js
+# comfyui-run-js
 
 Manipulate workflow via javascript on node.
 
 ## Usage  
 
-Utils > RunJS
+Add node > utils > Run JS
