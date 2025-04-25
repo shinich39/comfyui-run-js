@@ -3,7 +3,7 @@
 import { app } from "../../../scripts/app.js";
 import { api } from "../../../scripts/api.js";
 
-const CLASS_NAME = "RunJavaScript";
+const CLASS_NAME = "RunJS";
 const DEFAULT_MARGIN_X = 32;
 const DEFAULT_MARGIN_Y = 64;
 
