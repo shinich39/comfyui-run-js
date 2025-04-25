@@ -1,0 +1,25 @@
+{
+  "name": "comfyui-run-js",
+  "version": "1.0.0",
+  "description": "Manipulate workflow via javascript on node.",
+  "type": "module",
+  "scripts": {
+    "pub": "node scripts/pub.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shinich39/comfyui-run-js.git"
+  },
+  "keywords": [
+    "comfyui"
+  ],
+  "author": "shinich39 <shinich39@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shinich39/comfyui-run-js/issues"
+  },
+  "homepage": "https://github.com/shinich39/comfyui-run-js#readme",
+  "dependencies": {
+    "dotenv": "^16.5.0"
+  }
+}
