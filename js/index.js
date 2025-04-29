@@ -73,12 +73,12 @@ function execNode(node, args) {
     const ARGS = args ?? [];
 
     const DATE = new Date();
-    const YEAR = DATE.getFullYear();
-    const MONTH = DATE.getMonth() + 1;
-    const DAY = DATE.getDay();
-    const HOURS = DATE.getHours();
-    const MINUTES = DATE.getMinutes();
-    const SECONDS = DATE.getSeconds();
+    const YYYY = ("" + DATE.getFullYear());
+    const MM = ("" + (DATE.getMonth() + 1)).padStart(2, "0");
+    const DD = ("" + DATE.getDate()).padStart(2, "0");;
+    const hh = ("" + DATE.getHours()).padStart(2, "0");
+    const mm = ("" + DATE.getMinutes()).padStart(2, "0");
+    const ss = ("" + DATE.getSeconds()).padStart(2, "0");
 
     const BATCH_COUNT = getBatchCount();
     const QUEUE_MODE = getQueueMode();
