@@ -61,9 +61,10 @@ class RunJS():
   def __init__(self):
     pass
 
-  @classmethod
-  def IS_CHANGED(self, **kwargs):
-    return float("NaN")
+  # bug: JSON.parse( "is_changed": [NaN] )
+  # @classmethod
+  # def IS_CHANGED(self, **kwargs):
+  #   return float("NaN")
 
   @classmethod
   def INPUT_TYPES(cls):
