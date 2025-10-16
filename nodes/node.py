@@ -56,6 +56,10 @@ placeholder += "cancel() => Promise<void>\n"
 placeholder += "getQueue() => Promise<number>\n"
 placeholder += "setQueueMode(string)\n"
 placeholder += "setBatchCount(number)\n"
+placeholder += "showInfo(string, number?)\n"
+placeholder += "showSuccess(string, number?)\n"
+placeholder += "showWarn(string, number?)\n"
+placeholder += "showError(string, number?)\n"
 
 class RunJS():
   def __init__(self):
@@ -83,6 +87,7 @@ class RunJS():
           "execution_error",
           "execution_cached",
           "b_preview",
+          "comfyui_setup",
         ),),
         "text": ("STRING", {"default": "", "multiline": True, "placeholder": placeholder}),
       }

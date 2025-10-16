@@ -12,33 +12,6 @@ function getRunNodes(type) {
     e.widgets?.find(e => e.name === "event")?.value === type);
 }
 
-function createErrorNote(node, message) {
-
-  const createNote = function(str, x, y, width, height) {
-    const newNode = LiteGraph.createNode("Note");
-    newNode.pos = [x, y];
-    newNode.size = [width, height];
-    newNode.widgets[0].value = str;
-    app.canvas.graph.add(newNode, false);
-    app.canvas.selectNode(newNode);
-    return newNode;
-  }
-
-  const note = createNote(
-    message,
-    node.pos[0],
-    node.pos[1],
-    node.size[0],
-    node.size[1],
-  );
-
-  // red color
-  note.bgcolor = "#c61010";
-  note.color = "#da2424";
-
-  return note;
-}
-
 function execNodes(type, args) {
   const nodes = getRunNodes(type)
     .filter((node) => node.mode === 0);
@@ -90,7 +63,7 @@ function execNode(node, args) {
       eval(COMMAND);
     } catch(err) {
       console.error(err);
-      createErrorNote(node, err.toString());
+      showError(`#${node.id}: ${err.message}`);
     }
   } catch(err) {
     console.error(err);
@@ -157,6 +130,42 @@ const createComfyNode = function(className, values, options) {
 function wait(delay) {
   return new Promise(function (resolve) {
     return setTimeout(resolve, delay);
+  });
+}
+
+function showInfo(message = "", life = 5000) {
+  app.extensionManager.toast.add({
+    severity: "info",
+    summary: "Information",
+    detail: message,
+    life,
+  });
+}
+
+function showSuccess(message = "", life = 5000) {
+  app.extensionManager.toast.add({
+    severity: "success",
+    summary: "Success",
+    detail: message,
+    life,
+  });
+}
+
+function showWarn(message = "", life = 5000) {
+  app.extensionManager.toast.add({
+    severity: "warn",
+    summary: "Warning",
+    detail: message,
+    life,
+  });
+}
+
+function showError(message = "", life = 5000) {
+  app.extensionManager.toast.add({
+    severity: "error",
+    summary: "Error",
+    detail: message,
+    life,
   });
 }
 
@@ -722,6 +731,8 @@ app.registerExtension({
       });
 
       console.log("[comfyui-run-js] initialized");
+
+      execNodes("comfyui_setup", []);
     }, 1024 * 3);
   },
   nodeCreated(node) {
