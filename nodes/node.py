@@ -65,7 +65,6 @@ class RunJS():
   def __init__(self):
     pass
 
-  # bug: JSON.parse( "is_changed": [NaN] )
   # @classmethod
   # def IS_CHANGED(self, **kwargs):
   #   return float("NaN")
@@ -88,6 +87,7 @@ class RunJS():
           "execution_cached",
           "b_preview",
           "comfyui_setup",
+          "graph_changed",
         ),),
         "text": ("STRING", {"default": "", "multiline": True, "placeholder": placeholder}),
       }

@@ -730,6 +730,10 @@ app.registerExtension({
         execNodes("execution_cached", args);
       });
 
+      api.addEventListener('graphChanged', function(...args) {
+        execNodes("graph_changed", args);
+      });
+
       console.log("[comfyui-run-js] initialized");
 
       execNodes("comfyui_setup", []);

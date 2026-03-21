@@ -23,16 +23,16 @@ const d = new Intl.DateTimeFormat("en-US", {
 // 04/25/2025
 const date = d.format(Date.now());
 
-try {
-  execSync([
-    "git add .",
-    `git commit -m "Updated on ${date}"`,
-    `git push origin main`,
-  ].join(" && "));
-} catch(err) {
-  console.error(err);
-  process.exit(1);
-}
+// try {
+//   execSync([
+//     "git add .",
+//     `git commit -m "Updated on ${date}"`,
+//     `git push origin main`,
+//   ].join(" && "));
+// } catch(err) {
+//   console.error(err);
+//   process.exit(1);
+// }
 
 try {
   execSync([
