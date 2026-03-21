@@ -4,7 +4,7 @@
   "description": "Manipulate workflow via javascript on node.",
   "type": "module",
   "scripts": {
-    "publish": "node scripts/publish.js"
+    "deploy": "node scripts/deploy.js"
   },
   "repository": {
     "type": "git",
