@@ -88,6 +88,7 @@ class RunJS():
           "b_preview",
           "comfyui_setup",
           "graph_changed",
+          "workflow_changed",
         ),),
         "text": ("STRING", {"default": "", "multiline": True, "placeholder": placeholder}),
       }

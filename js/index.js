@@ -7,6 +7,21 @@ const CLASS_NAME = "RunJS";
 const DEFAULT_MARGIN_X = 32;
 const DEFAULT_MARGIN_Y = 64;
 
+// workflow_changed
+;(() => {
+  // const getGraphId = () => app.rootGraph?.id || app.graph?.id;
+  const getGraphId = () => app.graph?.id;
+  let prevId = getGraphId();
+  setInterval(() => {
+    const currId = getGraphId();
+    if (prevId === currId) {
+      return;
+    }
+    prevId = currId;
+    execNodes("workflow_changed", []);
+  }, 512);
+})();
+
 function getRunNodes(type) {
   return app.graph._nodes.filter(e => e.comfyClass === CLASS_NAME && 
     e.widgets?.find(e => e.name === "event")?.value === type);
@@ -17,7 +32,7 @@ function execNodes(type, args) {
     .filter((node) => node.mode === 0);
 
   for (const node of nodes) {
-    execNode(node, args);
+    execNode(node, args);    
   }
 }
 
@@ -65,6 +80,14 @@ function execNode(node, args) {
       console.error(err);
       showError(`#${node.id}: ${err.message}`);
     }
+
+    // highlight
+    // const origColor = node.color;
+    // node.color = "green";
+    // setTimeout(() => {
+    //   node.color = origColor;
+    //   node.setDirtyCanvas(true, true);
+    // }, 256);
   } catch(err) {
     console.error(err);
   }
@@ -325,6 +348,22 @@ const setValues = function(node, values) {
 }
 
 const setValue = setValues;
+
+// const setHeaderColor = (node, color) => {
+//   if (!color) {
+//     delete node.color;
+//     return;
+//   }
+//   node.color = color;
+// }
+
+// const setBackgroundColor = (node, color) => {
+//   if (!color) {
+//     delete node.bgcolor;
+//     return;
+//   }
+//   node.bgcolor = color;
+// }
 
 const connect = function(outputNode, inputNode, outputName, inputName) {
   outputNode = Node(outputNode);
@@ -684,9 +723,9 @@ const setRect = function(node, [x, y, width, height]) {
 app.registerExtension({
 	name: "shinich39.RunJS",
   setup() {
+
     // append event last of loading extensions
     setTimeout(() => {
-      
       const origQueuePrompt = api.queuePrompt;
       api.queuePrompt = async function(...args) {
         execNodes("before_queued", args);
