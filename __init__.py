@@ -2,7 +2,7 @@
 @author: shinich39
 @title: comfyui-run-js
 @nickname: comfyui-run-js
-@version: 1.0.4
+@version: 1.0.5
 @description: Manipulate workflow via javascript on node.
 """
 

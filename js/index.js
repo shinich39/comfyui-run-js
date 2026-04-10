@@ -9,17 +9,15 @@ const DEFAULT_MARGIN_Y = 64;
 
 // workflow_changed
 ;(() => {
-  // const getGraphId = () => app.rootGraph?.id || app.graph?.id;
-  const getGraphId = () => app.graph?.id;
-  let prevId = getGraphId();
+  let prevId = app.graph?.id; // app.rootGraph?.id
   setInterval(() => {
-    const currId = getGraphId();
+    const currId = app.graph?.id;
     if (prevId === currId) {
       return;
     }
     prevId = currId;
     execNodes("workflow_changed", []);
-  }, 512);
+  }, 100);
 })();
 
 function getRunNodes(type) {
@@ -36,7 +34,7 @@ function execNodes(type, args) {
   }
 }
 
-function execNode(node, args) {
+function execNode(node, args = []) {
   try {
     if (!node.STATE) {
       node.STATE = {};
@@ -58,7 +56,7 @@ function execNode(node, args) {
     const NODES = app.graph._nodes;
     const GROUPS = app.graph._groups;
     const LINKS = app.graph._links;
-    const ARGS = args ?? [];
+    const ARGS = args;
 
     const DATE = new Date();
     const YYYY = ("" + DATE.getFullYear());
