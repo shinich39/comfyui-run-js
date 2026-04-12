@@ -7,6 +7,8 @@ const CLASS_NAME = "RunJS";
 const DEFAULT_MARGIN_X = 32;
 const DEFAULT_MARGIN_Y = 64;
 
+const runNodes = new Set();
+
 // workflow_changed
 ;(() => {
   let prevId = app.graph?.id; // app.rootGraph?.id
@@ -20,16 +22,15 @@ const DEFAULT_MARGIN_Y = 64;
   }, 100);
 })();
 
-function getRunNodes(type) {
-  return app.graph._nodes.filter(e => e.comfyClass === CLASS_NAME && 
-    e.widgets?.find(e => e.name === "event")?.value === type);
-}
-
 function execNodes(type, args) {
-  const nodes = getRunNodes(type)
-    .filter((node) => node.mode === 0);
-
-  for (const node of nodes) {
+  // app.graph._nodes
+  for (const node of runNodes) {
+    // Node type
+    // if (node.comfyClass !== CLASS_NAME) continue;
+    // Event
+    if (node.widgets?.find(e => e.name === "event")?.value !== type) continue;
+    // Bypass
+    if (node.mode !== 0) continue;
     execNode(node, args);    
   }
 }
@@ -79,16 +80,24 @@ function execNode(node, args = []) {
       showError(`#${node.id}: ${err.message}`);
     }
 
-    // highlight
-    // const origColor = node.color;
-    // node.color = "green";
-    // setTimeout(() => {
-    //   node.color = origColor;
-    //   node.setDirtyCanvas(true, true);
-    // }, 256);
+    _hightlight(node);
   } catch(err) {
     console.error(err);
   }
+}
+
+function _hightlight(node) {
+  node._btn.name = "Running...";
+  node.setDirtyCanvas(true, true);
+
+  if (node._highlightTimer) {
+    clearTimeout(node._highlightTimer);
+  }
+
+  node._highlightTimer = setTimeout(() => {
+    node._btn.name = "Run";
+    node.setDirtyCanvas(true, true);
+  }, 256);
 }
 
 function run(...nodes) {
@@ -778,10 +787,18 @@ app.registerExtension({
   },
   nodeCreated(node) {
     if (node.comfyClass === CLASS_NAME) {
+      // already exists
+      if (runNodes.has(node)) {
+        return;
+      }
+
       const b = node.addWidget("button", "Run", null, () => {}, { serialize: false, });
       b.computeSize = () => [0, 26];
       b.callback = () => execNode(node, []);
       node.run = () => execNode(node, []);
+      node._btn = b;
+
+      runNodes.add(node);
     }
 	},
 });
