@@ -7,8 +7,6 @@ const CLASS_NAME = "RunJS";
 const DEFAULT_MARGIN_X = 32;
 const DEFAULT_MARGIN_Y = 64;
 
-const runNodes = new Set();
-
 // workflow_changed
 ;(() => {
   let prevId = app.graph?.id; // app.rootGraph?.id
@@ -23,14 +21,16 @@ const runNodes = new Set();
 })();
 
 function execNodes(type, args) {
-  // app.graph._nodes
-  for (const node of runNodes) {
+  for (const node of app.graph._nodes) {
     // Node type
-    // if (node.comfyClass !== CLASS_NAME) continue;
-    // Event
-    if (node.widgets?.find(e => e.name === "event")?.value !== type) continue;
+    if (node.comfyClass !== CLASS_NAME) continue;
+    
     // Bypass
     if (node.mode !== 0) continue;
+
+    // Event
+    if (node.widgets?.find(e => e.name === "event")?.value !== type) continue;
+
     execNode(node, args);    
   }
 }
@@ -58,14 +58,14 @@ function execNode(node, args = []) {
     const GROUPS = app.graph._groups;
     const LINKS = app.graph._links;
     const ARGS = args;
-
-    const DATE = new Date();
-    const YYYY = ("" + DATE.getFullYear());
-    const MM = ("" + (DATE.getMonth() + 1)).padStart(2, "0");
-    const DD = ("" + DATE.getDate()).padStart(2, "0");;
-    const hh = ("" + DATE.getHours()).padStart(2, "0");
-    const mm = ("" + DATE.getMinutes()).padStart(2, "0");
-    const ss = ("" + DATE.getSeconds()).padStart(2, "0");
+    
+    // const DATE = new Date();
+    // const YYYY = ("" + DATE.getFullYear());
+    // const MM = ("" + (DATE.getMonth() + 1)).padStart(2, "0");
+    // const DD = ("" + DATE.getDate()).padStart(2, "0");;
+    // const hh = ("" + DATE.getHours()).padStart(2, "0");
+    // const mm = ("" + DATE.getMinutes()).padStart(2, "0");
+    // const ss = ("" + DATE.getSeconds()).padStart(2, "0");
 
     const BATCH_COUNT = getBatchCount();
     const QUEUE_MODE = getQueueMode();
@@ -226,7 +226,9 @@ const queryGroup = function(group, query) {
 }
 
 const $ = function(...args) {
-  const groups = [], nodes = [];
+  const groups = [], 
+        nodes = [];
+
   for (const arg of args) {
     if (arg instanceof LGraphGroup) {
       arg.recomputeInsideNodes();
@@ -787,18 +789,11 @@ app.registerExtension({
   },
   nodeCreated(node) {
     if (node.comfyClass === CLASS_NAME) {
-      // already exists
-      if (runNodes.has(node)) {
-        return;
-      }
-
       const b = node.addWidget("button", "Run", null, () => {}, { serialize: false, });
       b.computeSize = () => [0, 26];
       b.callback = () => execNode(node, []);
       node.run = () => execNode(node, []);
       node._btn = b;
-
-      runNodes.add(node);
     }
 	},
 });

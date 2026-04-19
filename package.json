@@ -1,6 +1,6 @@
 {
   "name": "comfyui-run-js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Manipulate workflow via javascript on node.",
   "type": "module",
   "scripts": {
