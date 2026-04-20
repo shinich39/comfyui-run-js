@@ -20,7 +20,7 @@ const DEFAULT_MARGIN_Y = 64;
   }, 100);
 })();
 
-function execNodes(type, args) {
+async function execNodes(type, args) {
   for (const node of app.graph._nodes) {
     // Node type
     if (node.comfyClass !== CLASS_NAME) continue;
@@ -31,11 +31,11 @@ function execNodes(type, args) {
     // Event
     if (node.widgets?.find(e => e.name === "event")?.value !== type) continue;
 
-    execNode(node, args);    
+    await execNode(node, args);    
   }
 }
 
-function execNode(node, args = []) {
+async function execNode(node, args = []) {
   try {
     if (!node.STATE) {
       node.STATE = {};
@@ -58,18 +58,9 @@ function execNode(node, args = []) {
     const GROUPS = app.graph._groups;
     const LINKS = app.graph._links;
     const ARGS = args;
-    
-    // const DATE = new Date();
-    // const YYYY = ("" + DATE.getFullYear());
-    // const MM = ("" + (DATE.getMonth() + 1)).padStart(2, "0");
-    // const DD = ("" + DATE.getDate()).padStart(2, "0");;
-    // const hh = ("" + DATE.getHours()).padStart(2, "0");
-    // const mm = ("" + DATE.getMinutes()).padStart(2, "0");
-    // const ss = ("" + DATE.getSeconds()).padStart(2, "0");
 
     const BATCH_COUNT = getBatchCount();
     const QUEUE_MODE = getQueueMode();
-    const AUTO_QUEUE = getQueueMode() !== "disabled";
 
     const create = (className, values, options) => createComfyNode.apply(node, [className, values, options]);
 
@@ -157,7 +148,7 @@ const createComfyNode = function(className, values, options) {
 
 // methods
 
-function wait(delay) {
+function sleep(delay) {
   return new Promise(function (resolve) {
     return setTimeout(resolve, delay);
   });
@@ -734,65 +725,65 @@ app.registerExtension({
   setup() {
 
     // append event last of loading extensions
-    setTimeout(() => {
+    setTimeout(async () => {
       const origQueuePrompt = api.queuePrompt;
       api.queuePrompt = async function(...args) {
-        execNodes("before_queued", args);
+        await execNodes("before_queued", args);
         const r = await origQueuePrompt.apply(this, arguments);
         return r;
       }
   
-      api.addEventListener("promptQueued", function(...args) {
-        execNodes("after_queued", args);
+      api.addEventListener("promptQueued", async function(...args) {
+        await execNodes("after_queued", args);
       });
   
-      api.addEventListener("status", function(...args) {
-        execNodes("status", args);
+      api.addEventListener("status", async function(...args) {
+        await execNodes("status", args);
       });
   
-      api.addEventListener("progress", function(...args) {
-        execNodes("progress", args);
+      api.addEventListener("progress", async function(...args) {
+        await execNodes("progress", args);
       });
   
-      api.addEventListener("executing", function(...args) {
-        execNodes("executing", args);
+      api.addEventListener("executing", async function(...args) {
+        await execNodes("executing", args);
       });
   
-      api.addEventListener("executed", function(...args) {
-        execNodes("executed", args);
+      api.addEventListener("executed", async function(...args) {
+        await execNodes("executed", args);
       });
   
-      api.addEventListener("execution_start", function(...args) {
-        execNodes("execution_start", args);
+      api.addEventListener("execution_start", async function(...args) {
+        await execNodes("execution_start", args);
       });
   
-      api.addEventListener("execution_success", function(...args) {
-        execNodes("execution_success", args);
+      api.addEventListener("execution_success", async function(...args) {
+        await execNodes("execution_success", args);
       });
   
-      api.addEventListener("execution_error", function(...args) {
-        execNodes("execution_error", args);
+      api.addEventListener("execution_error", async function(...args) {
+        await execNodes("execution_error", args);
       });
   
-      api.addEventListener("execution_cached", function(...args) {
-        execNodes("execution_cached", args);
+      api.addEventListener("execution_cached", async function(...args) {
+        await execNodes("execution_cached", args);
       });
 
-      api.addEventListener('graphChanged', function(...args) {
-        execNodes("graph_changed", args);
+      api.addEventListener('graphChanged', async function(...args) {
+        await execNodes("graph_changed", args);
       });
 
       console.log("[comfyui-run-js] initialized");
 
-      execNodes("comfyui_setup", []);
+      await execNodes("comfyui_setup", []);
     }, 1024 * 3);
   },
   nodeCreated(node) {
     if (node.comfyClass === CLASS_NAME) {
       const b = node.addWidget("button", "Run", null, () => {}, { serialize: false, });
       b.computeSize = () => [0, 26];
-      b.callback = () => execNode(node, []);
-      node.run = () => execNode(node, []);
+      b.callback = async () => await execNode(node, []);
+      node.run = async () => await execNode(node, []);
       node._btn = b;
     }
 	},
