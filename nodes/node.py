@@ -26,6 +26,9 @@ placeholder += "\n"
 placeholder += "// Widget values\n"
 placeholder += "getValues(node) => Record<string, any>\n"
 placeholder += "setValues(node, Record<string, any>)\n"
+placeholder += "getImages(node) => HTMLImageElement[]\n"
+placeholder += "getLastImage(node) => HTMLImageElement | undefined\n"
+placeholder += "loadImage(node, HTMLImageElement)\n"
 placeholder += "\n"
 
 # ----- Node control -----

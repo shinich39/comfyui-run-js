@@ -20,7 +20,7 @@ const DEFAULT_MARGIN_Y = 64;
   }, 100);
 })();
 
-async function execNodes(type, args) {
+function execNodes(type, args) {
   for (const node of app.graph._nodes) {
     // Node type
     if (node.comfyClass !== CLASS_NAME) continue;
@@ -31,11 +31,11 @@ async function execNodes(type, args) {
     // Event
     if (node.widgets?.find(e => e.name === "event")?.value !== type) continue;
 
-    await execNode(node, args);    
+    execNode(node, args);    
   }
 }
 
-async function execNode(node, args = []) {
+function execNode(node, args = []) {
   try {
     if (!node.STATE) {
       node.STATE = {};
@@ -323,8 +323,8 @@ const Groups = function(query, reverse) {
 
 const getValues = function(node) {
   node = Node(node);
-  let result = {};
-  if (node.widgets) {
+  const result = {};
+  if (node?.widgets) {
     for (const widget of node.widgets) {
       result[widget.name] = widget.value;
     }
@@ -332,7 +332,9 @@ const getValues = function(node) {
   return result;
 }
 
-const getValue = getValues;
+const getValue = function(node, widgetName) {
+  getValues(node)?.[widgetName];
+}
 
 const setValues = function(node, values) {
   node = Node(node);
@@ -347,23 +349,107 @@ const setValues = function(node, values) {
   }
 }
 
-const setValue = setValues;
+const setValue = function(node, widgetName, value) {
+  setValues(node, { [widgetName]: value });
+}
 
-// const setHeaderColor = (node, color) => {
-//   if (!color) {
-//     delete node.color;
-//     return;
-//   }
-//   node.color = color;
-// }
+/**
+ * @returns {{ "originalName": "...","name": "image.png","subfolder": "","type": "input" }}
+ */
+const _uploadImage = async function(img, options = {}) {
 
-// const setBackgroundColor = (node, color) => {
-//   if (!color) {
-//     delete node.bgcolor;
-//     return;
-//   }
-//   node.bgcolor = color;
-// }
+  const imgToBlob = async (img) => {
+    const response = await fetch(img.src);
+    const blob = await response.blob();
+    const url = new URL(img.src);
+    const params = url.searchParams;
+    const filename = params.get("filename");
+    const subfolder = params.get("subfolder");
+    const type = params.get("type");
+    return {
+      blob,
+      filename,
+      subfolder,
+      type,
+    }
+  }
+
+  const { blob, filename, subfolder, type } = await imgToBlob(img);
+
+  const formData = new FormData();
+  if (blob instanceof ArrayBuffer || blob instanceof Uint8Array) {
+    formData.append("image", new Blob([blob]), filename);
+  } else {
+    formData.append("image", blob, filename);
+  }
+  // formData.append("type", blob.type);
+  formData.append("subfolder", options.subfolder ?? "");
+  formData.append("overwrite", options.override?.toString() ?? "true");
+
+  const res = await fetch("/upload/image", {
+    method: "POST",
+    body: formData,
+    // headers: {},
+    // mode: "cors",
+  });
+
+  return {
+    originalName: filename,
+    ...await res.json(),
+  }
+}
+
+const getImages = function(node) {
+  node = Node(node);
+  return node?.imgs ? [...node.imgs] : [];
+}
+
+const getLastImage = function(node) {
+  node = Node(node);
+  return node?.imgs?.[node.imgs.length - 1];
+}
+
+const loadImage = async function(node, img) {
+  node = Node(node);
+
+  if (node?.type !== "LoadImage") {
+    throw new Error("loadImage() has supported LoadImage node only.");
+    return;
+  }
+
+  function addToComboValues(widget, value) {
+    if (!widget.options) widget.options = { values: [] }
+    if (!widget.options.values) widget.options.values = []
+    if (!widget.options.values.includes(value)) {
+      widget.options.values.push(value)
+    }
+  }
+
+  const widget = node.widgets[0]; // comboWidget
+
+  const { name, subfolder, type } = await _uploadImage(img);
+
+  widget.value = name;
+  addToComboValues(widget, name);
+  widget.callback?.(name); // re-render
+  node.setDirtyCanvas(true, true);
+}
+
+const setHeaderColor = (node, color) => {
+  node.color = color;
+}
+
+const unsetHeaderColor = (node) => {
+  delete node.color;
+}
+
+const setBackgroundColor = (node, color) => {
+  node.bgcolor = color;
+}
+
+const unsetBackgroundColor = (node) => {
+  delete node.bgcolor;
+}
 
 const connect = function(outputNode, inputNode, outputName, inputName) {
   outputNode = Node(outputNode);
@@ -728,62 +814,62 @@ app.registerExtension({
     setTimeout(async () => {
       const origQueuePrompt = api.queuePrompt;
       api.queuePrompt = async function(...args) {
-        await execNodes("before_queued", args);
+        execNodes("before_queued", args);
         const r = await origQueuePrompt.apply(this, arguments);
         return r;
       }
   
-      api.addEventListener("promptQueued", async function(...args) {
-        await execNodes("after_queued", args);
+      api.addEventListener("promptQueued", function(...args) {
+        execNodes("after_queued", args);
       });
   
-      api.addEventListener("status", async function(...args) {
-        await execNodes("status", args);
+      api.addEventListener("status", function(...args) {
+        execNodes("status", args);
       });
   
-      api.addEventListener("progress", async function(...args) {
-        await execNodes("progress", args);
+      api.addEventListener("progress", function(...args) {
+        execNodes("progress", args);
       });
   
-      api.addEventListener("executing", async function(...args) {
-        await execNodes("executing", args);
+      api.addEventListener("executing", function(...args) {
+        execNodes("executing", args);
       });
   
-      api.addEventListener("executed", async function(...args) {
-        await execNodes("executed", args);
+      api.addEventListener("executed", function(...args) {
+        execNodes("executed", args);
       });
   
-      api.addEventListener("execution_start", async function(...args) {
-        await execNodes("execution_start", args);
+      api.addEventListener("execution_start", function(...args) {
+        execNodes("execution_start", args);
       });
   
-      api.addEventListener("execution_success", async function(...args) {
-        await execNodes("execution_success", args);
+      api.addEventListener("execution_success", function(...args) {
+        execNodes("execution_success", args);
       });
   
-      api.addEventListener("execution_error", async function(...args) {
-        await execNodes("execution_error", args);
+      api.addEventListener("execution_error", function(...args) {
+        execNodes("execution_error", args);
       });
   
-      api.addEventListener("execution_cached", async function(...args) {
-        await execNodes("execution_cached", args);
+      api.addEventListener("execution_cached", function(...args) {
+        execNodes("execution_cached", args);
       });
 
-      api.addEventListener('graphChanged', async function(...args) {
-        await execNodes("graph_changed", args);
+      api.addEventListener('graphChanged', function(...args) {
+        execNodes("graph_changed", args);
       });
 
       console.log("[comfyui-run-js] initialized");
 
-      await execNodes("comfyui_setup", []);
+      execNodes("comfyui_setup", []);
     }, 1024 * 3);
   },
   nodeCreated(node) {
     if (node.comfyClass === CLASS_NAME) {
       const b = node.addWidget("button", "Run", null, () => {}, { serialize: false, });
       b.computeSize = () => [0, 26];
-      b.callback = async () => await execNode(node, []);
-      node.run = async () => await execNode(node, []);
+      b.callback = () => execNode(node, []);
+      node.run = () => execNode(node, []);
       node._btn = b;
     }
 	},
