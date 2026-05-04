@@ -4,7 +4,7 @@ placeholder = ""
 placeholder += "// Variables\n"
 placeholder += "SELF: Node\n"
 placeholder += "COMMAND: string\n"
-placeholder += "STATE: Record<string, any>\n"
+placeholder += "SESSION: Record<string, any>\n"
 placeholder += "PROPS: Record<string, any>\n"
 placeholder += "NODES: Node[]\n"
 placeholder += "GROUPS: Group[]\n"
@@ -28,7 +28,7 @@ placeholder += "getValues(node) => Record<string, any>\n"
 placeholder += "setValues(node, Record<string, any>)\n"
 placeholder += "getImages(node) => HTMLImageElement[]\n"
 placeholder += "getLastImage(node) => HTMLImageElement | undefined\n"
-placeholder += "loadImage(node, HTMLImageElement)\n"
+placeholder += "setImage(node, HTMLImageElement)\n"
 placeholder += "\n"
 
 # ----- Node control -----
@@ -49,12 +49,11 @@ placeholder += "\n"
 
 # ----- Queue & generation -----
 placeholder += "// Queue & generation\n"
-placeholder += "generate() => Promise<void>\n"
+placeholder += "run() => Promise<void>\n"
 placeholder += "cancel() => Promise<void>\n"
 placeholder += "getQueue() => Promise<number>\n"
 placeholder += "setQueueMode('disabled'|'instant'|'change')\n"
 placeholder += "setBatchCount(number)\n"
-placeholder += "run(...RunJsNode[])\n"
 placeholder += "\n"
 
 # ----- Random helpers -----

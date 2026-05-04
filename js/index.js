@@ -6,6 +6,7 @@ import { api } from "../../scripts/api.js";
 const CLASS_NAME = "RunJS";
 const DEFAULT_MARGIN_X = 32;
 const DEFAULT_MARGIN_Y = 64;
+let SESSION = {};
 
 // workflow_changed
 ;(() => {
@@ -37,9 +38,6 @@ function execNodes(type, args) {
 
 function execNode(node, args = []) {
   try {
-    if (!node.STATE) {
-      node.STATE = {};
-    }
     if (!node.properties) {
       node.properties = {};
     }
@@ -52,7 +50,6 @@ function execNode(node, args = []) {
 
     const SELF = node;
     const COMMAND = node.widgets?.find(e => e.name === "text")?.value;
-    const STATE = node.STATE;
     const PROPS = node.PROPS;
     const NODES = app.graph._nodes;
     const GROUPS = app.graph._groups;
@@ -91,12 +88,12 @@ function _hightlight(node) {
   }, 256);
 }
 
-function run(...nodes) {
-  nodes = nodes.map(Node);
-  for (const node of nodes) {
-    node.run();
-  }
-}
+// function run(...nodes) {
+//   nodes = nodes.map(Node);
+//   for (const node of nodes) {
+//     node.run();
+//   }
+// }
 
 function getQueueMode() {
   return app.extensionManager.queueSettings.mode;
@@ -409,11 +406,11 @@ const getLastImage = function(node) {
   return node?.imgs?.[node.imgs.length - 1];
 }
 
-const loadImage = async function(node, img) {
+const setImage = async function(node, img) {
   node = Node(node);
 
   if (node?.type !== "LoadImage") {
-    throw new Error("loadImage() has supported LoadImage node only.");
+    throw new Error("setImage() has supported LoadImage node only.");
     return;
   }
 
@@ -649,7 +646,7 @@ const getQueue = async function() {
   return res.Running.length + res.Pending.length;
 }
 
-const generate = async function() {
+const run = async function() {
   await app.queuePrompt(0, getBatchCount());
 }
 

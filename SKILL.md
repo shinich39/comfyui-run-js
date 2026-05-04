@@ -14,7 +14,7 @@ Every script runs with these variables pre-bound:
 |---|---|---|
 | `SELF` | `Node` | The RunJS node itself |
 | `COMMAND` | `string` | The script source currently executing |
-| `STATE` | `Record<string, any>` | Persists across runs within the same node instance |
+| `SESSION` | `Record<string, any>` | Persists to until the tab is closed. |
 | `PROPS` | `Record<string, any>` | Persists to `node.properties.PROPS` (survives reload) |
 | `NODES` | `Node[]` | All nodes in the current graph |
 | `GROUPS` | `Group[]` | All groups in the current graph |
@@ -44,7 +44,7 @@ Set the `event` widget of a RunJS node to one of:
 | `execution_error` | Execution error |
 | `execution_cached` | Cached result used |
 | `graph_changed` | Graph structure changed |
-| *(button)* | Manual "Run" button click or `run(node)` call |
+| *(button)* | Manual "Run" button click |
 
 ---
 
@@ -133,12 +133,11 @@ connect(lora, Node("KSampler"), "MODEL", "model");   // explicit slots
 ### Queue & Generation
 
 ```js
-generate()                      // Queue a prompt → Promise<void>
+run()                           // Queue a prompt → Promise<void>
 cancel()                        // Interrupt current execution → Promise<void>
 getQueue()                      // → Promise<number> (running + pending count)
 setQueueMode("disabled" | "instant" | "change")
 setBatchCount(n)
-run(...runJsNodes)              // Trigger other RunJS nodes programmatically
 ```
 
 > **`await` works.** The script runs inside an `async` context, so `await generate()`, `await sleep()`, `await getQueue()` all work correctly.
@@ -147,14 +146,11 @@ run(...runJsNodes)              // Trigger other RunJS nodes programmatically
 ```js
 // Queue 3 images
 setBatchCount(3);
-await generate();
+await run();
 
 // Cancel if queue is backed up
 const depth = await getQueue();
 if (depth > 5) await cancel();
-
-// Chain another RunJS node
-run(Node("Post Process"));
 ```
 
 ---
@@ -219,7 +215,7 @@ setValues(Node("KSampler"), { seed: PROPS.lastSeed });
 
 ```js
 setValues(Node("KSampler"), { seed: generateSeed() });
-await generate();
+await run();
 ```
 
 ### Toggle a node on/off
@@ -237,7 +233,7 @@ const prompts = ["a cat", "a dog", "a bird"];
 const idx = (STATE.idx ?? -1) + 1;
 STATE.idx = idx % prompts.length;
 setValues(Node("CLIPTextEncode"), { text: prompts[STATE.idx] });
-await generate();
+await run();
 ```
 
 ### Cartesian product batch
@@ -246,7 +242,7 @@ await generate();
 const plots = generatePlots([10, 20, 30], ["euler", "dpmpp_2m"]);
 for (const [steps, sampler] of plots) {
   setValues(Node("KSampler"), { steps, sampler_name: sampler, seed: generateSeed() });
-  await generate();
+  await run();
   await sleep(500); // small gap between queues
 }
 ```
@@ -257,7 +253,7 @@ for (const [steps, sampler] of plots) {
 const depth = await getQueue();
 if (depth === 0) {
   setValues(Node("KSampler"), { seed: generateSeed() });
-  await generate();
+  await run();
 } else {
   showWarn(`Queue busy (${depth} pending), skipping.`);
 }
